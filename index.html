@@ -5,26 +5,41 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Task Planner & Time Tracker</title>
 <style>
-body{font-family:Arial,sans-serif;margin:0;background:#f4f6f9;color:#1f2937}
-header{background:#2563eb;color:white;padding:20px;text-align:center}
-.hero img{width:100%;height:220px;object-fit:cover}
-.container{max-width:1100px;margin:auto;padding:20px}
+:root{
+  --bg:#f4f6f9; --card-bg:#ffffff; --text:#1f2937; --muted:#6b7280;
+  --border:#e5e7eb; --header-bg:#2563eb; --input-bg:#ffffff;
+}
+body.dark{
+  --bg:#0f172a; --card-bg:#1e293b; --text:#e5e7eb; --muted:#9ca3af;
+  --border:#334155; --header-bg:#1e3a8a; --input-bg:#111827;
+}
+*{box-sizing:border-box}
+body{font-family:Arial,sans-serif;margin:0;background:var(--bg);color:var(--text);transition:background .2s,color .2s}
+header{background:var(--header-bg);color:white;padding:20px;text-align:center;position:relative}
+#darkToggleBtn{position:absolute;top:18px;right:18px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);padding:8px 14px;border-radius:20px;font-size:13px}
+.hero img{width:100%;height:200px;object-fit:cover;display:block}
+.container{max-width:1150px;margin:auto;padding:20px}
 
 .tabs{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
-.tab-btn{background:white;color:#2563eb;border:2px solid #2563eb;padding:10px 18px;border-radius:8px;font-weight:bold}
+.tab-btn{background:var(--card-bg);color:#2563eb;border:2px solid #2563eb;padding:10px 18px;border-radius:8px;font-weight:bold}
 .tab-btn.active{background:#2563eb;color:#fff}
 .tab-content{display:none}
-.tab-content.active{display:block}
+.tab-content.active{display:block;animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-.dashboard{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:20px}
-.card,.form-box,.task-box{background:white;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1);margin-bottom:20px}
-.card{text-align:center}
-.card h2{margin:0;color:#2563eb}
-.card.small h2{font-size:22px}
+.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin-bottom:20px}
+.card,.form-box,.task-box{background:var(--card-bg);padding:20px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.08);margin-bottom:20px}
+.card{text-align:center;animation:fadeIn .4s ease}
+.card h2{margin:0;color:#2563eb;font-size:26px}
+.card p{color:var(--muted);margin:6px 0 0}
 
-input,select{padding:10px;margin:5px 5px 5px 0;width:220px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box}
-input[type=time],input[type=date],input[type=datetime-local]{width:170px}
-button{padding:10px 15px;border:none;border-radius:5px;cursor:pointer;font-weight:bold}
+label.field-label{display:block;font-size:12px;color:var(--muted);margin:6px 0 -2px}
+input,select,textarea{padding:10px;margin:5px 5px 5px 0;width:220px;border:1px solid var(--border);border-radius:6px;background:var(--input-bg);color:var(--text);font-family:inherit}
+textarea{width:100%;min-height:60px;resize:vertical}
+input[type=time],input[type=date]{width:160px}
+input[type=number]{width:110px}
+button{padding:10px 15px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;transition:transform .12s,box-shadow .12s}
+button:hover{transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,.15)}
 .add-btn{background:#2563eb;color:#fff}
 .complete-btn{background:#16a34a;color:#fff}
 .delete-btn{background:#dc2626;color:#fff}
@@ -33,43 +48,72 @@ button{padding:10px 15px;border:none;border-radius:5px;cursor:pointer;font-weigh
 .cancel-btn{background:#6b7280;color:#fff}
 .start-btn{background:#16a34a;color:#fff;font-size:16px;padding:14px 28px}
 .stop-btn{background:#dc2626;color:#fff;font-size:16px;padding:14px 28px}
+.quick-btn{background:var(--card-bg);color:var(--text);border:2px solid var(--border);padding:10px 16px}
+.ghost-btn{background:transparent;border:1px solid var(--border);color:var(--text)}
 
 table{width:100%;border-collapse:collapse}
-th,td{padding:10px;border-bottom:1px solid #ddd;font-size:14px}
-th{background:#f8fafc;text-align:left}
-.completed{text-decoration:line-through;color:gray}
-.task-icon{width:24px;height:24px;vertical-align:middle;margin-right:8px}
-.priority-high{color:red;font-weight:bold}
-.priority-medium{color:orange;font-weight:bold}
-.priority-low{color:green;font-weight:bold}
+th,td{padding:10px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:top}
+th{background:var(--bg);text-align:left}
+tr{animation:fadeIn .3s ease}
+.completed{text-decoration:line-through;color:var(--muted)}
+.task-notes{font-size:12px;color:var(--muted);font-style:italic;margin-top:3px}
+.priority-high{color:#dc2626;font-weight:bold}
+.priority-medium{color:#d97706;font-weight:bold}
+.priority-low{color:#16a34a;font-weight:bold}
 
 .timer-box{text-align:center}
 .timer-display{font-size:48px;font-weight:bold;color:#2563eb;margin:15px 0;font-family:monospace}
-.timer-meta{color:#6b7280;margin-bottom:10px}
+.timer-meta{color:var(--muted);margin-bottom:10px}
 .live-dot{display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:50%;margin-right:6px;animation:pulse 1.2s infinite}
 @keyframes pulse{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
+.quick-row{margin-top:12px}
 
-.cat-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:bold;color:#fff;background:#2563eb}
-.source-manual{background:#6b7280}
+.cat-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:bold;color:#fff;white-space:nowrap}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.legend span{font-size:12px}
 
 .bar-row{display:flex;align-items:center;margin-bottom:10px;font-size:14px}
-.bar-label{width:150px;flex-shrink:0}
-.bar-track{flex:1;background:#e5e7eb;border-radius:6px;height:18px;overflow:hidden;margin:0 10px}
-.bar-fill{height:100%;background:#2563eb}
-.bar-value{width:110px;text-align:right;flex-shrink:0;color:#374151}
+.bar-label{width:160px;flex-shrink:0}
+.bar-track{flex:1;background:var(--border);border-radius:6px;height:18px;overflow:hidden;margin:0 10px}
+.bar-fill{height:100%;transition:width .4s ease}
+.bar-value{width:130px;text-align:right;flex-shrink:0;color:var(--muted)}
 
 .week-chart{display:flex;align-items:flex-end;gap:12px;height:160px;margin-top:10px}
 .week-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
-.week-bar{width:100%;background:#2563eb;border-radius:4px 4px 0 0;min-height:4px}
-.week-label{margin-top:6px;font-size:12px;color:#6b7280;text-align:center}
-.week-val{font-size:11px;color:#374151}
+.week-bar{width:100%;background:#2563eb;border-radius:4px 4px 0 0;min-height:4px;transition:height .4s ease}
+.week-label{margin-top:6px;font-size:12px;color:var(--muted);text-align:center}
+.week-val{font-size:11px;color:var(--muted)}
 
 .section-title{margin-top:0}
-.hint{color:#6b7280;font-size:13px;margin-top:-8px;margin-bottom:10px}
+.hint{color:var(--muted);font-size:13px;margin-top:-8px;margin-bottom:10px}
+.insight-list{margin:0;padding-left:20px}
+.insight-list li{margin-bottom:8px}
+
+.empty-state{text-align:center;padding:30px 10px;color:var(--muted)}
+.empty-state .big{font-size:36px;margin-bottom:8px}
+.empty-state .suggestions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+#reminderBanner{display:none;position:fixed;top:0;left:0;right:0;background:#f59e0b;color:#111827;padding:14px 18px;z-index:2000;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+#reminderBanner .reminder-text{font-weight:bold}
+
+.io-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:700px){.io-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header><h1>📋 Task Planner & Time Tracker</h1></header>
+
+<div id="reminderBanner">
+ <span class="reminder-text"></span>
+ <span>
+  <button class="save-btn" onclick="dismissReminder()">Keep Going</button>
+  <button class="stop-btn" onclick="stopTimer()">Stop Timer</button>
+ </span>
+</div>
+
+<header>
+<h1>📋 Task Planner & Time Tracker</h1>
+<button id="darkToggleBtn" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+</header>
 
 <div class="hero">
 <img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=1200" alt="Task Planner">
@@ -94,22 +138,39 @@ th{background:#f8fafc;text-align:left}
 
 <div class="form-box">
 <h3 class="section-title">Add New Task</h3>
+<label class="field-label">Task name</label><br>
 <input type="text" id="taskName" placeholder="Task Name">
+<label class="field-label">Category</label><br>
+<select id="taskCategory" onchange="toggleCustomCat('task')"></select>
+<input type="text" id="taskCategoryOther" placeholder="Custom category" style="display:none">
+<label class="field-label">Priority</label><br>
 <select id="priority">
 <option value="High">High Priority</option>
 <option value="Medium">Medium Priority</option>
 <option value="Low">Low Priority</option>
 </select>
+<label class="field-label">Due date</label><br>
 <input type="date" id="dueDate">
+<label class="field-label">Recurring</label><br>
+<select id="taskRecurring">
+<option value="None">One-time</option>
+<option value="Daily">Daily</option>
+<option value="Weekly">Weekly</option>
+</select>
+<br>
+<label class="field-label">Notes / next steps</label><br>
+<textarea id="taskNotes" placeholder="Optional — context, next steps, links..."></textarea>
+<br>
 <button class="add-btn" onclick="addTask()">Add Task</button>
 </div>
 
 <div class="task-box">
 <input type="text" id="search" placeholder="Search Tasks..." onkeyup="renderTasks()" style="width:300px;">
 <br><br>
-<table>
+<div id="tasksEmptyState"></div>
+<table id="tasksTableWrap">
 <thead>
-<tr><th>Task</th><th>Priority</th><th>Due Date</th><th>Status</th><th>Actions</th></tr>
+<tr><th>Task</th><th>Category</th><th>Priority</th><th>Due</th><th>Recurring</th><th>Time Tracked</th><th>Status</th><th>Actions</th></tr>
 </thead>
 <tbody id="taskTable"></tbody>
 </table>
@@ -120,17 +181,22 @@ th{background:#f8fafc;text-align:left}
 <!-- ============ TIME TRACKER TAB ============ -->
 <div class="tab-content" id="trackerTab">
 
+<div class="legend" id="categoryLegend"></div>
+
 <div class="form-box timer-box">
 <h3 class="section-title">Live Timer</h3>
 <div id="liveIdleForm">
-<select id="liveCategory" onchange="toggleCustomCat('live')">
-<option>Study</option><option>Placement Prep</option><option>Work</option>
-<option>Gym</option><option>Personal</option><option>Break</option><option>Other</option>
-</select>
+<select id="liveCategory" onchange="toggleCustomCat('live')"></select>
 <input type="text" id="liveCategoryOther" placeholder="Custom category" style="display:none">
 <input type="text" id="liveDescription" placeholder="What are you working on?">
 <br>
+<select id="liveTaskLink" onchange="onTaskLinkChange('live')"></select>
+<br>
 <button class="start-btn" onclick="startTimer()">▶ Start Timer</button>
+<div class="quick-row">
+<button class="quick-btn" onclick="quickStart('Relax Time','Break')">☕ Quick Break</button>
+<button class="quick-btn" onclick="quickStart('Relax Time','Social Media')">📱 Social Media Break</button>
+</div>
 </div>
 <div id="liveRunningView" style="display:none">
 <div class="timer-meta"><span class="live-dot"></span><b id="runningLabel"></b></div>
@@ -142,12 +208,11 @@ th{background:#f8fafc;text-align:left}
 <div class="form-box">
 <h3 class="section-title">Add a Past Entry</h3>
 <p class="hint">Already did something earlier and forgot to track it live? Log it here instead.</p>
-<select id="manCategory" onchange="toggleCustomCat('man')">
-<option>Study</option><option>Placement Prep</option><option>Work</option>
-<option>Gym</option><option>Personal</option><option>Break</option><option>Other</option>
-</select>
+<select id="manCategory" onchange="toggleCustomCat('man')"></select>
 <input type="text" id="manCategoryOther" placeholder="Custom category" style="display:none">
 <input type="text" id="manDescription" placeholder="Description">
+<br>
+<select id="manTaskLink" onchange="onTaskLinkChange('man')"></select>
 <br>
 <input type="date" id="manDate">
 <input type="time" id="manStart">
@@ -157,9 +222,10 @@ th{background:#f8fafc;text-align:left}
 
 <div class="task-box">
 <h3 class="section-title">Time Log</h3>
+<div id="logEmptyState"></div>
 <table>
 <thead>
-<tr><th>Date</th><th>Category</th><th>Description</th><th>Start</th><th>End</th><th>Duration</th><th>Actions</th></tr>
+<tr><th>Date</th><th>Category</th><th>Description</th><th>Linked task</th><th>Start</th><th>End</th><th>Duration</th><th>Actions</th></tr>
 </thead>
 <tbody id="logTable"></tbody>
 </table>
@@ -171,9 +237,29 @@ th{background:#f8fafc;text-align:left}
 <div class="tab-content" id="dashboardTab">
 
 <div class="dashboard">
-<div class="card small"><h2 id="allTimeTotal">0h</h2><p>Total Tracked (all time)</p></div>
-<div class="card small"><h2 id="allTimeSessions">0</h2><p>Sessions Logged</p></div>
-<div class="card small"><h2 id="topCategory">-</h2><p>Top Category</p></div>
+<div class="card"><h2 id="allTimeTotal">0h</h2><p>Total Tracked</p></div>
+<div class="card"><h2 id="allTimeSessions">0</h2><p>Sessions Logged</p></div>
+<div class="card"><h2 id="topCategory">-</h2><p>Top Category</p></div>
+<div class="card"><h2 id="streakCard">0</h2><p>Day Streak 🔥</p></div>
+<div class="card"><h2 id="avgPerDay">0h</h2><p>Avg / Active Day</p></div>
+</div>
+
+<div class="form-box" id="insightsWrap">
+<h3 class="section-title">Quick Insights</h3>
+<ul class="insight-list" id="insightsList"></ul>
+</div>
+
+<div class="form-box">
+<h3 class="section-title">Goals & Reminders</h3>
+<label class="field-label">Daily goal (minutes)</label><br>
+<input type="number" id="goalDaily" min="0">
+<label class="field-label">Weekly goal (minutes)</label><br>
+<input type="number" id="goalWeekly" min="0">
+<label class="field-label">Remind me if a timer runs past (minutes)</label><br>
+<input type="number" id="goalReminder" min="5">
+<br>
+<button class="add-btn" onclick="saveGoalsForm()">Save Goals</button>
+<div style="margin-top:14px" id="goalProgress"></div>
 </div>
 
 <div class="form-box">
@@ -188,21 +274,73 @@ th{background:#f8fafc;text-align:left}
 <div class="week-chart" id="weekChart"></div>
 </div>
 
+<div class="form-box">
+<h3 class="section-title">Import / Export Data</h3>
+<p class="hint">Download a template, fill it in following the example row, then import it back. Each person's data stays in their own browser only.</p>
+<div class="io-grid">
+<div>
+<h4>Tasks</h4>
+<button class="ghost-btn" onclick="downloadTasksTemplate()">⬇️ Download Tasks Template (CSV)</button><br><br>
+<input type="file" id="importTasksFile" accept=".csv" onchange="importTasksCSV(event)">
+</div>
+<div>
+<h4>Time Log</h4>
+<button class="ghost-btn" onclick="downloadTimeTemplate()">⬇️ Download Time Log Template (CSV)</button><br><br>
+<input type="file" id="importTimeFile" accept=".csv" onchange="importTimeCSV(event)">
+</div>
+</div>
+</div>
+
 </div>
 
 </div>
 
 <script>
-/* ---------------- shared state ---------------- */
+/* ---------------- categories ---------------- */
+const CATEGORIES = [
+ {name:"Studies", color:"#2563eb", emoji:"📚"},
+ {name:"Placement Prep", color:"#7c3aed", emoji:"💼"},
+ {name:"Committee Work", color:"#0d9488", emoji:"🤝"},
+ {name:"Meals", color:"#f59e0b", emoji:"🍽️"},
+ {name:"Relax Time", color:"#16a34a", emoji:"🌿"},
+ {name:"Other", color:"#6b7280", emoji:"✨"}
+];
+function getCategoryMeta(name){
+ return CATEGORIES.find(c=>c.name===name) || {name, color:"#6b7280", emoji:"🏷️"};
+}
+function categoryOptionsHtml(){
+ return CATEGORIES.map(c=>`<option value="${c.name}">${c.emoji} ${c.name}</option>`).join("");
+}
+
+/* ---------------- state ---------------- */
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let timeEntries = JSON.parse(localStorage.getItem("timeEntries")) || [];
 let runningEntry = JSON.parse(localStorage.getItem("runningEntry")) || null;
+let settings = JSON.parse(localStorage.getItem("settings")) || {darkMode:false, dailyGoalMinutes:240, weeklyGoalMinutes:1200, reminderThresholdMinutes:90};
 let editingLogId = null;
+let editingTaskId = null;
 let timerInterval = null;
+let reminderBannerShown = false;
 
 function saveTasks(){localStorage.setItem("tasks", JSON.stringify(tasks));}
 function saveTimeEntries(){localStorage.setItem("timeEntries", JSON.stringify(timeEntries));}
 function saveRunning(){localStorage.setItem("runningEntry", JSON.stringify(runningEntry));}
+function saveSettings(){localStorage.setItem("settings", JSON.stringify(settings));}
+
+/* ---------------- migration (backward compatible with earlier versions) ---------------- */
+function migrate(){
+ let changed=false;
+ tasks.forEach((t,i)=>{
+  if(!t.id){t.id="t"+Date.now()+i+Math.random().toString(36).slice(2,6); changed=true;}
+  if(t.category===undefined){t.category="Other"; changed=true;}
+  if(t.recurring===undefined){t.recurring="None"; changed=true;}
+  if(t.notes===undefined){t.notes=""; changed=true;}
+ });
+ timeEntries.forEach(e=>{
+  if(e.taskId===undefined){e.taskId=null; changed=true;}
+ });
+ if(changed){saveTasks(); saveTimeEntries();}
+}
 
 /* ---------------- tabs ---------------- */
 function showTab(name){
@@ -213,43 +351,15 @@ function showTab(name){
  if(name==="dashboard") renderDashboard();
 }
 
-/* ---------------- tasks (unchanged logic) ---------------- */
-function addTask(){
- const taskName=document.getElementById("taskName").value;
- const priority=document.getElementById("priority").value;
- const dueDate=document.getElementById("dueDate").value;
- if(!taskName){alert("Please enter a task.");return;}
- tasks.push({taskName,priority,dueDate,completed:false});
- saveTasks(); renderTasks();
- document.getElementById("taskName").value="";
+/* ---------------- dark mode ---------------- */
+function toggleDarkMode(){
+ settings.darkMode=!settings.darkMode;
+ document.body.classList.toggle("dark", settings.darkMode);
+ saveSettings();
+ updateDarkToggleLabel();
 }
-function toggleTask(i){tasks[i].completed=!tasks[i].completed;saveTasks();renderTasks();}
-function deleteTask(i){tasks.splice(i,1);saveTasks();renderTasks();}
-
-function renderTasks(){
- const search=document.getElementById("search").value.toLowerCase();
- const table=document.getElementById("taskTable");
- table.innerHTML="";
- tasks.forEach((task,index)=>{
-  if(!task.taskName.toLowerCase().includes(search)) return;
-  let pc=task.priority==="High"?"priority-high":task.priority==="Medium"?"priority-medium":"priority-low";
-  table.innerHTML += `
-  <tr>
-   <td class="${task.completed?'completed':''}">
-   <img class="task-icon" src="https://cdn-icons-png.flaticon.com/512/1828/1828919.png" alt="Task">
-   ${escapeHtml(task.taskName)}</td>
-   <td class="${pc}">${task.priority}</td>
-   <td>${task.dueDate || "-"}</td>
-   <td>${task.completed?'Completed':'Pending'}</td>
-   <td>
-    <button class="complete-btn" onclick="toggleTask(${index})">✓</button>
-    <button class="delete-btn" onclick="deleteTask(${index})">✕</button>
-   </td>
-  </tr>`;
- });
- document.getElementById("totalTasks").innerText=tasks.length;
- document.getElementById("completedTasks").innerText=tasks.filter(t=>t.completed).length;
- document.getElementById("pendingTasks").innerText=tasks.filter(t=>!t.completed).length;
+function updateDarkToggleLabel(){
+ document.getElementById("darkToggleBtn").innerText = settings.darkMode? "☀️ Light Mode":"🌙 Dark Mode";
 }
 
 /* ---------------- helpers ---------------- */
@@ -291,22 +401,202 @@ function formatHMS(ms){
  const s=Math.floor(ms/1000);
  return `${pad(Math.floor(s/3600))}:${pad(Math.floor((s%3600)/60))}:${pad(s%60)}`;
 }
+function shiftDate(dateStr, days){
+ const base = dateStr ? new Date(dateStr+"T00:00:00") : new Date();
+ base.setDate(base.getDate()+days);
+ return toDateStr(base.getTime());
+}
+function pendingTaskOptionsHtml(){
+ let html='<option value="">— No linked task —</option>';
+ tasks.filter(t=>!t.completed).forEach(t=>{
+  html+=`<option value="${t.id}">${escapeHtml(t.taskName)}</option>`;
+ });
+ return html;
+}
+function refreshTaskLinkDropdowns(){
+ ["liveTaskLink","manTaskLink"].forEach(id=>{
+  const el=document.getElementById(id);
+  const current=el.value;
+  el.innerHTML=pendingTaskOptionsHtml();
+  if([...el.options].some(o=>o.value===current)) el.value=current;
+ });
+}
+function onTaskLinkChange(prefix){
+ const sel=document.getElementById(prefix+"TaskLink");
+ const task=tasks.find(t=>t.id===sel.value);
+ if(!task) return;
+ const descInput=document.getElementById(prefix+"Description");
+ if(!descInput.value) descInput.value=task.taskName;
+ if(task.category){
+  const isKnown=CATEGORIES.some(c=>c.name===task.category);
+  document.getElementById(prefix+"Category").value = isKnown ? task.category : "Other";
+  toggleCustomCat(prefix);
+  if(!isKnown) document.getElementById(prefix+"CategoryOther").value = task.category;
+ }
+}
+function computeTaskTrackedTime(taskId){
+ return timeEntries.filter(e=>e.taskId===taskId && e.end!=null).reduce((s,e)=>s+e.duration,0);
+}
+
+/* ---------------- tasks ---------------- */
+function addTask(){
+ const taskName=document.getElementById("taskName").value.trim();
+ const category=getCategoryValue("task");
+ const priority=document.getElementById("priority").value;
+ const dueDate=document.getElementById("dueDate").value;
+ const recurring=document.getElementById("taskRecurring").value;
+ const notes=document.getElementById("taskNotes").value.trim();
+ if(!taskName){alert("Please enter a task.");return;}
+ tasks.push({id:"t"+Date.now()+Math.random().toString(36).slice(2,6), taskName, category, priority, dueDate, recurring, notes, completed:false});
+ saveTasks(); renderTasks(); refreshTaskLinkDropdowns();
+ document.getElementById("taskName").value="";
+ document.getElementById("taskNotes").value="";
+}
+function toggleTask(id){
+ const task=tasks.find(t=>t.id===id);
+ if(!task) return;
+ task.completed=!task.completed;
+ if(task.completed && task.recurring && task.recurring!=="None"){
+  const days = task.recurring==="Daily" ? 1 : 7;
+  tasks.push({
+   id:"t"+Date.now()+Math.random().toString(36).slice(2,6),
+   taskName:task.taskName, category:task.category, priority:task.priority,
+   dueDate: shiftDate(task.dueDate, days), recurring:task.recurring, notes:task.notes, completed:false
+  });
+ }
+ saveTasks(); renderTasks(); refreshTaskLinkDropdowns();
+}
+function deleteTask(id){
+ if(!confirm("Delete this task? This cannot be undone.")) return;
+ tasks=tasks.filter(t=>t.id!==id);
+ saveTasks(); renderTasks(); refreshTaskLinkDropdowns();
+}
+function startEditTask(id){ editingTaskId=id; renderTasks(); }
+function cancelEditTask(){ editingTaskId=null; renderTasks(); }
+function saveEditTask(id){
+ const task=tasks.find(t=>t.id===id);
+ task.taskName=document.getElementById("etname-"+id).value.trim() || task.taskName;
+ task.category=document.getElementById("etcat-"+id).value;
+ task.priority=document.getElementById("etpri-"+id).value;
+ task.dueDate=document.getElementById("etdue-"+id).value;
+ task.recurring=document.getElementById("etrec-"+id).value;
+ task.notes=document.getElementById("etnotes-"+id).value.trim();
+ saveTasks(); editingTaskId=null; renderTasks(); refreshTaskLinkDropdowns();
+}
+function quickFillTask(category){
+ showTab("tasks");
+ document.getElementById("taskCategory").value=category;
+ document.getElementById("taskName").focus();
+}
+
+function renderTasks(){
+ const search=document.getElementById("search").value.toLowerCase();
+ const table=document.getElementById("taskTable");
+ const empty=document.getElementById("tasksEmptyState");
+ table.innerHTML="";
+ const visible=tasks.filter(t=>t.taskName.toLowerCase().includes(search));
+
+ if(tasks.length===0){
+  document.getElementById("tasksTableWrap").style.display="none";
+  empty.innerHTML=`
+  <div class="empty-state">
+   <div class="big">📝</div>
+   <p>No tasks yet. Add your first one above, or try one of these:</p>
+   <div class="suggestions">
+    <button class="quick-btn" onclick="quickFillTask('Studies')">📚 Add a Study Task</button>
+    <button class="quick-btn" onclick="quickFillTask('Placement Prep')">💼 Add Placement Prep Task</button>
+    <button class="quick-btn" onclick="quickFillTask('Committee Work')">🤝 Add Committee Task</button>
+   </div>
+  </div>`;
+ } else {
+  document.getElementById("tasksTableWrap").style.display="table";
+  empty.innerHTML="";
+ }
+
+ visible.forEach(task=>{
+  const meta=getCategoryMeta(task.category);
+  const tracked=computeTaskTrackedTime(task.id);
+  if(editingTaskId===task.id){
+   table.innerHTML += `
+   <tr>
+    <td colspan="8">
+     <label class="field-label">Task name</label><br>
+     <input type="text" id="etname-${task.id}" value="${escapeHtml(task.taskName)}">
+     <label class="field-label">Category</label><br>
+     <select id="etcat-${task.id}">${CATEGORIES.map(c=>`<option value="${c.name}" ${c.name===task.category?"selected":""}>${c.emoji} ${c.name}</option>`).join("")}</select>
+     <label class="field-label">Priority</label><br>
+     <select id="etpri-${task.id}">
+      <option value="High" ${task.priority==="High"?"selected":""}>High Priority</option>
+      <option value="Medium" ${task.priority==="Medium"?"selected":""}>Medium Priority</option>
+      <option value="Low" ${task.priority==="Low"?"selected":""}>Low Priority</option>
+     </select>
+     <label class="field-label">Due date</label><br>
+     <input type="date" id="etdue-${task.id}" value="${task.dueDate||""}">
+     <label class="field-label">Recurring</label><br>
+     <select id="etrec-${task.id}">
+      <option value="None" ${task.recurring==="None"?"selected":""}>One-time</option>
+      <option value="Daily" ${task.recurring==="Daily"?"selected":""}>Daily</option>
+      <option value="Weekly" ${task.recurring==="Weekly"?"selected":""}>Weekly</option>
+     </select>
+     <br>
+     <label class="field-label">Notes / next steps</label><br>
+     <textarea id="etnotes-${task.id}">${escapeHtml(task.notes||"")}</textarea>
+     <br>
+     <button class="save-btn" onclick="saveEditTask('${task.id}')">Save</button>
+     <button class="cancel-btn" onclick="cancelEditTask()">Cancel</button>
+    </td>
+   </tr>`;
+  } else {
+   table.innerHTML += `
+   <tr>
+    <td class="${task.completed?'completed':''}">
+     ${escapeHtml(task.taskName)}
+     ${task.notes ? `<div class="task-notes">📝 ${escapeHtml(task.notes)}</div>` : ""}
+    </td>
+    <td><span class="cat-tag" style="background:${meta.color}">${meta.emoji} ${escapeHtml(task.category)}</span></td>
+    <td class="priority-${task.priority.toLowerCase()}">${task.priority}</td>
+    <td>${task.dueDate || "-"}</td>
+    <td>${task.recurring && task.recurring!=="None" ? "🔁 "+task.recurring : "-"}</td>
+    <td>${tracked>0 ? formatDuration(tracked) : "-"}</td>
+    <td>${task.completed?'Completed':'Pending'}</td>
+    <td>
+     <button class="complete-btn" onclick="toggleTask('${task.id}')">✓</button>
+     <button class="edit-btn" onclick="startEditTask('${task.id}')">Edit</button>
+     <button class="delete-btn" onclick="deleteTask('${task.id}')">✕</button>
+    </td>
+   </tr>`;
+  }
+ });
+ document.getElementById("totalTasks").innerText=tasks.length;
+ document.getElementById("completedTasks").innerText=tasks.filter(t=>t.completed).length;
+ document.getElementById("pendingTasks").innerText=tasks.filter(t=>!t.completed).length;
+}
 
 /* ---------------- live timer ---------------- */
 function startTimer(){
  if(runningEntry){alert("A timer is already running. Stop it first.");return;}
+ const taskId=document.getElementById("liveTaskLink").value || null;
  const category=getCategoryValue("live");
  const description=document.getElementById("liveDescription").value.trim();
- runningEntry={category, description, start: Date.now()};
+ runningEntry={taskId, category, description, start: Date.now(), reminderDismissedUntil:0};
  saveRunning();
  document.getElementById("liveDescription").value="";
+ reminderBannerShown=false;
+ renderTimerView();
+}
+function quickStart(category, description){
+ if(runningEntry){alert("A timer is already running. Stop it first.");return;}
+ runningEntry={taskId:null, category, description, start: Date.now(), reminderDismissedUntil:0};
+ saveRunning();
+ reminderBannerShown=false;
  renderTimerView();
 }
 function stopTimer(){
  if(!runningEntry) return;
  const end=Date.now();
  timeEntries.push({
-  id: "e"+Date.now(),
+  id: "e"+Date.now()+Math.random().toString(36).slice(2,6),
+  taskId: runningEntry.taskId || null,
   category: runningEntry.category,
   description: runningEntry.description,
   date: toDateStr(runningEntry.start),
@@ -318,8 +608,27 @@ function stopTimer(){
  saveTimeEntries();
  runningEntry=null;
  saveRunning();
+ reminderBannerShown=false;
+ document.getElementById("reminderBanner").style.display="none";
  renderTimerView();
  renderLog();
+ renderTasks();
+}
+function dismissReminder(){
+ reminderBannerShown=false;
+ document.getElementById("reminderBanner").style.display="none";
+ if(runningEntry){
+  runningEntry.reminderDismissedUntil = Date.now() + (settings.reminderThresholdMinutes||90)*60000;
+  saveRunning();
+ }
+}
+function showReminderBanner(){
+ if(reminderBannerShown) return;
+ reminderBannerShown=true;
+ const banner=document.getElementById("reminderBanner");
+ banner.querySelector(".reminder-text").innerText =
+  `⏰ You've been tracking "${runningEntry.description || runningEntry.category}" for over ${settings.reminderThresholdMinutes||90} minutes. Still going?`;
+ banner.style.display="flex";
 }
 function renderTimerView(){
  clearInterval(timerInterval);
@@ -329,7 +638,12 @@ function renderTimerView(){
   document.getElementById("runningLabel").innerText =
    `${runningEntry.category}${runningEntry.description ? " — "+runningEntry.description : ""}`;
   const tick=()=>{
-   document.getElementById("timerDisplay").innerText = formatHMS(Date.now()-runningEntry.start);
+   const elapsed=Date.now()-runningEntry.start;
+   document.getElementById("timerDisplay").innerText = formatHMS(elapsed);
+   const thresholdMs=(settings.reminderThresholdMinutes||90)*60000;
+   if(elapsed>thresholdMs && Date.now()>(runningEntry.reminderDismissedUntil||0)){
+    showReminderBanner();
+   }
   };
   tick();
   timerInterval=setInterval(tick,1000);
@@ -341,6 +655,7 @@ function renderTimerView(){
 
 /* ---------------- manual entry ---------------- */
 function addManualEntry(){
+ const taskId=document.getElementById("manTaskLink").value || null;
  const category=getCategoryValue("man");
  const description=document.getElementById("manDescription").value.trim();
  const date=document.getElementById("manDate").value;
@@ -351,22 +666,22 @@ function addManualEntry(){
  const end=new Date(`${date}T${endT}`).getTime();
  if(end<=start){alert("End time must be after start time.");return;}
  timeEntries.push({
-  id:"e"+Date.now(),
-  category, description,
-  date,
-  start, end,
+  id:"e"+Date.now()+Math.random().toString(36).slice(2,6),
+  taskId, category, description, date, start, end,
   duration: end-start,
   source:"manual"
  });
  saveTimeEntries();
  document.getElementById("manDescription").value="";
  renderLog();
+ renderTasks();
 }
 
 /* ---------------- time log (with edit) ---------------- */
 function deleteEntry(id){
+ if(!confirm("Delete this time entry? This cannot be undone.")) return;
  timeEntries=timeEntries.filter(e=>e.id!==id);
- saveTimeEntries(); renderLog();
+ saveTimeEntries(); renderLog(); renderTasks();
 }
 function startEditEntry(id){ editingLogId=id; renderLog(); }
 function cancelEditEntry(){ editingLogId=null; renderLog(); }
@@ -385,19 +700,39 @@ function saveEditEntry(id){
  saveTimeEntries();
  editingLogId=null;
  renderLog();
+ renderTasks();
 }
 
 function renderLog(){
  const table=document.getElementById("logTable");
+ const empty=document.getElementById("logEmptyState");
  table.innerHTML="";
  const sorted=[...timeEntries].sort((a,b)=>b.start-a.start);
+
+ if(timeEntries.length===0){
+  empty.innerHTML=`
+  <div class="empty-state">
+   <div class="big">⏱️</div>
+   <p>No time logged yet. Start a live timer above, try Quick Break, or add a past entry.</p>
+   <div class="suggestions">
+    <button class="quick-btn" onclick="quickStart('Relax Time','Break')">☕ Quick Break</button>
+    <button class="quick-btn" onclick="document.getElementById('manDescription').focus()">✏️ Log a Past Entry</button>
+   </div>
+  </div>`;
+ } else {
+  empty.innerHTML="";
+ }
+
  sorted.forEach(entry=>{
+  const meta=getCategoryMeta(entry.category);
+  const linkedTask = entry.taskId ? tasks.find(t=>t.id===entry.taskId) : null;
   if(editingLogId===entry.id){
    table.innerHTML += `
    <tr>
     <td><input type="date" id="edit-date-${entry.id}" value="${entry.date}" style="width:140px"></td>
     <td><input type="text" id="edit-cat-${entry.id}" value="${escapeHtml(entry.category)}" style="width:120px"></td>
     <td><input type="text" id="edit-desc-${entry.id}" value="${escapeHtml(entry.description||"")}" style="width:150px"></td>
+    <td>${linkedTask ? escapeHtml(linkedTask.taskName) : "-"}</td>
     <td><input type="time" id="edit-start-${entry.id}" value="${toTimeStr(entry.start)}" style="width:110px"></td>
     <td><input type="time" id="edit-end-${entry.id}" value="${toTimeStr(entry.end)}" style="width:110px"></td>
     <td>-</td>
@@ -410,8 +745,9 @@ function renderLog(){
    table.innerHTML += `
    <tr>
     <td>${entry.date}</td>
-    <td><span class="cat-tag ${entry.source==='manual'?'source-manual':''}">${escapeHtml(entry.category)}</span></td>
+    <td><span class="cat-tag" style="background:${meta.color}">${meta.emoji} ${escapeHtml(entry.category)}</span></td>
     <td>${escapeHtml(entry.description||"-")}</td>
+    <td>${linkedTask ? "🔗 "+escapeHtml(linkedTask.taskName) : "-"}</td>
     <td>${toDisplayTime(entry.start)}</td>
     <td>${toDisplayTime(entry.end)}</td>
     <td>${formatDuration(entry.duration)}</td>
@@ -424,15 +760,46 @@ function renderLog(){
  });
 }
 
+/* ---------------- goals ---------------- */
+function saveGoalsForm(){
+ settings.dailyGoalMinutes = parseInt(document.getElementById("goalDaily").value)||0;
+ settings.weeklyGoalMinutes = parseInt(document.getElementById("goalWeekly").value)||0;
+ settings.reminderThresholdMinutes = parseInt(document.getElementById("goalReminder").value)||90;
+ saveSettings();
+ renderDashboard();
+}
+
 /* ---------------- dashboard ---------------- */
+function computeStreak(datesSet){
+ let streak=0;
+ let cursor=new Date();
+ if(!datesSet.has(toDateStr(cursor.getTime()))) cursor.setDate(cursor.getDate()-1);
+ while(datesSet.has(toDateStr(cursor.getTime()))){
+  streak++;
+  cursor.setDate(cursor.getDate()-1);
+ }
+ return streak;
+}
+function computeAvgActiveDay(completed){
+ const byDate={};
+ completed.forEach(e=>{byDate[e.date]=(byDate[e.date]||0)+e.duration;});
+ const dates=Object.keys(byDate);
+ if(dates.length===0) return 0;
+ const total=dates.reduce((s,d)=>s+byDate[d],0);
+ return total/dates.length;
+}
+
 function renderDashboard(){
+ document.getElementById("goalDaily").value=settings.dailyGoalMinutes;
+ document.getElementById("goalWeekly").value=settings.weeklyGoalMinutes;
+ document.getElementById("goalReminder").value=settings.reminderThresholdMinutes;
+
  const dashDateInput=document.getElementById("dashDate");
  if(!dashDateInput.value) dashDateInput.value=toDateStr(Date.now());
  const selectedDate=dashDateInput.value;
 
  const completed=timeEntries.filter(e=>e.end!=null);
 
- // all-time stats
  const totalMs=completed.reduce((s,e)=>s+e.duration,0);
  document.getElementById("allTimeTotal").innerText=formatDuration(totalMs);
  document.getElementById("allTimeSessions").innerText=completed.length;
@@ -440,6 +807,66 @@ function renderDashboard(){
  completed.forEach(e=>{catTotals[e.category]=(catTotals[e.category]||0)+e.duration;});
  const topCat=Object.entries(catTotals).sort((a,b)=>b[1]-a[1])[0];
  document.getElementById("topCategory").innerText = topCat ? topCat[0] : "-";
+
+ const datesSet=new Set(completed.map(e=>e.date));
+ const streak=computeStreak(datesSet);
+ document.getElementById("streakCard").innerText=streak;
+ document.getElementById("avgPerDay").innerText=formatDuration(computeAvgActiveDay(completed));
+
+ // last 7 days (used for weekly goal + chart)
+ const days=[];
+ for(let i=6;i>=0;i--){
+  const d=new Date();
+  d.setDate(d.getDate()-i);
+  days.push(toDateStr(d.getTime()));
+ }
+ const dayTotalsArr=days.map(d=>completed.filter(e=>e.date===d).reduce((s,e)=>s+e.duration,0));
+ const weekTotalMs=dayTotalsArr.reduce((s,v)=>s+v,0);
+ const todayMs=completed.filter(e=>e.date===toDateStr(Date.now())).reduce((s,e)=>s+e.duration,0);
+
+ // goal progress bars
+ const goalDiv=document.getElementById("goalProgress");
+ goalDiv.innerHTML="";
+ if(settings.dailyGoalMinutes>0){
+  const pct=Math.min(100, Math.round((todayMs/(settings.dailyGoalMinutes*60000))*100));
+  goalDiv.innerHTML += `
+  <div class="bar-row">
+   <div class="bar-label">Today</div>
+   <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:#16a34a"></div></div>
+   <div class="bar-value">${formatDuration(todayMs)} / ${settings.dailyGoalMinutes}m (${pct}%)</div>
+  </div>`;
+ }
+ if(settings.weeklyGoalMinutes>0){
+  const pct=Math.min(100, Math.round((weekTotalMs/(settings.weeklyGoalMinutes*60000))*100));
+  goalDiv.innerHTML += `
+  <div class="bar-row">
+   <div class="bar-label">This week</div>
+   <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:#2563eb"></div></div>
+   <div class="bar-value">${formatDuration(weekTotalMs)} / ${settings.weeklyGoalMinutes}m (${pct}%)</div>
+  </div>`;
+ }
+ if(settings.dailyGoalMinutes===0 && settings.weeklyGoalMinutes===0){
+  goalDiv.innerHTML = `<p class="hint">Set a daily or weekly goal above to track progress here.</p>`;
+ }
+
+ // insights
+ const insightsList=document.getElementById("insightsList");
+ const insights=[];
+ if(completed.length===0){
+  insights.push("No sessions tracked yet — start a timer or log a past entry to see insights here.");
+ } else {
+  insights.push(streak>0 ? `🔥 ${streak} day streak — keep it going!` : "Log time today to start a new streak.");
+  const weekCatTotals={};
+  completed.filter(e=>days.includes(e.date)).forEach(e=>{weekCatTotals[e.category]=(weekCatTotals[e.category]||0)+e.duration;});
+  const weekTop=Object.entries(weekCatTotals).sort((a,b)=>b[1]-a[1])[0];
+  if(weekTop) insights.push(`📊 This week you've spent the most time on <b>${escapeHtml(weekTop[0])}</b> (${formatDuration(weekTop[1])}).`);
+  if(settings.dailyGoalMinutes>0){
+   const pct=Math.min(100, Math.round((todayMs/(settings.dailyGoalMinutes*60000))*100));
+   insights.push(`🎯 You're at ${pct}% of today's ${settings.dailyGoalMinutes}-minute goal.`);
+  }
+  insights.push(`⏱️ Your average session is ${formatDuration(totalMs/completed.length)}.`);
+ }
+ insightsList.innerHTML = insights.map(i=>`<li>${i}</li>`).join("");
 
  // daily breakdown for selected date
  const dayEntries=completed.filter(e=>e.date===selectedDate);
@@ -450,42 +877,140 @@ function renderDashboard(){
  dayEntries.forEach(e=>{dayCatTotals[e.category]=(dayCatTotals[e.category]||0)+e.duration;});
  const dayEntriesSorted=Object.entries(dayCatTotals).sort((a,b)=>b[1]-a[1]);
  const breakdownDiv=document.getElementById("dailyBreakdown");
- breakdownDiv.innerHTML="";
- dayEntriesSorted.forEach(([cat,ms])=>{
-  const pct = dayTotal>0 ? Math.round((ms/dayTotal)*100) : 0;
-  breakdownDiv.innerHTML += `
-  <div class="bar-row">
-   <div class="bar-label">${escapeHtml(cat)}</div>
-   <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-   <div class="bar-value">${formatDuration(ms)} (${pct}%)</div>
-  </div>`;
- });
-
- // last 7 days chart
- const days=[];
- for(let i=6;i>=0;i--){
-  const d=new Date();
-  d.setDate(d.getDate()-i);
-  days.push(toDateStr(d.getTime()));
+ if(dayEntriesSorted.length===0){
+  breakdownDiv.innerHTML = `<p class="hint">Nothing logged for this day. <button class="quick-btn" onclick="showTab('tracker')">Go log something →</button></p>`;
+ } else {
+  breakdownDiv.innerHTML = dayEntriesSorted.map(([cat,ms])=>{
+   const pct = dayTotal>0 ? Math.round((ms/dayTotal)*100) : 0;
+   const meta=getCategoryMeta(cat);
+   return `
+   <div class="bar-row">
+    <div class="bar-label">${meta.emoji} ${escapeHtml(cat)}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${meta.color}"></div></div>
+    <div class="bar-value">${formatDuration(ms)} (${pct}%)</div>
+   </div>`;
+  }).join("");
  }
- const dayTotals=days.map(d=>completed.filter(e=>e.date===d).reduce((s,e)=>s+e.duration,0));
- const maxMs=Math.max(...dayTotals,1);
+
+ // week chart
+ const maxMs=Math.max(...dayTotalsArr,1);
  const weekChart=document.getElementById("weekChart");
  weekChart.innerHTML="";
  days.forEach((d,i)=>{
-  const heightPct = Math.round((dayTotals[i]/maxMs)*100);
+  const heightPct = Math.round((dayTotalsArr[i]/maxMs)*100);
   const label=new Date(d+"T00:00:00").toLocaleDateString([], {weekday:'short'});
   weekChart.innerHTML += `
   <div class="week-col">
-   <div class="week-val">${dayTotals[i]>0?formatDuration(dayTotals[i]):""}</div>
-   <div class="week-bar" style="height:${Math.max(heightPct,dayTotals[i]>0?4:0)}%"></div>
+   <div class="week-val">${dayTotalsArr[i]>0?formatDuration(dayTotalsArr[i]):""}</div>
+   <div class="week-bar" style="height:${Math.max(heightPct,dayTotalsArr[i]>0?4:0)}%"></div>
    <div class="week-label">${label}<br>${d.slice(5)}</div>
   </div>`;
  });
 }
 
+/* ---------------- CSV templates & import ---------------- */
+function downloadCSV(filename, headerCols, exampleRow){
+ const csv = headerCols.join(",") + "\n" + exampleRow.join(",") + "\n";
+ const blob = new Blob([csv], {type:"text/csv"});
+ const url = URL.createObjectURL(blob);
+ const a=document.createElement("a");
+ a.href=url; a.download=filename; a.click();
+ URL.revokeObjectURL(url);
+}
+function downloadTasksTemplate(){
+ downloadCSV("tasks_template.csv",
+  ["taskName","category","priority","dueDate(YYYY-MM-DD)","recurring(None/Daily/Weekly)","notes"],
+  ["Finish DCF model","Studies","High","2026-09-25","Weekly","Check WACC assumptions with professor"]);
+}
+function downloadTimeTemplate(){
+ downloadCSV("time_log_template.csv",
+  ["date(YYYY-MM-DD)","startTime(HH:MM)","endTime(HH:MM)","category","description","linkedTaskName(optional)"],
+  ["2026-09-18","09:00","10:30","Studies","Revised FM formulas",""]);
+}
+function parseCSV(text){
+ const lines=text.split(/\r?\n/).filter(l=>l.trim().length>0);
+ if(lines.length<2) return [];
+ const headers=lines[0].split(",").map(h=>h.trim());
+ return lines.slice(1).map(line=>{
+  const cols=line.split(",").map(c=>c.trim());
+  const obj={};
+  headers.forEach((h,i)=>obj[h]=cols[i]||"");
+  return obj;
+ });
+}
+function importTasksCSV(event){
+ const file=event.target.files[0];
+ if(!file) return;
+ const reader=new FileReader();
+ reader.onload=function(e){
+  const rows=parseCSV(e.target.result);
+  let added=0;
+  rows.forEach(r=>{
+   const name = r["taskName"];
+   if(!name) return;
+   tasks.push({
+    id:"t"+Date.now()+Math.random().toString(36).slice(2,6),
+    taskName:name,
+    category: r["category"] || "Other",
+    priority: r["priority(High/Medium/Low)"] || r["priority"] || "Medium",
+    dueDate: r["dueDate(YYYY-MM-DD)"] || r["dueDate"] || "",
+    recurring: r["recurring(None/Daily/Weekly)"] || r["recurring"] || "None",
+    notes: r["notes"] || "",
+    completed:false
+   });
+   added++;
+  });
+  saveTasks(); renderTasks(); refreshTaskLinkDropdowns();
+  alert(`Imported ${added} task(s).`);
+  event.target.value="";
+ };
+ reader.readAsText(file);
+}
+function importTimeCSV(event){
+ const file=event.target.files[0];
+ if(!file) return;
+ const reader=new FileReader();
+ reader.onload=function(e){
+  const rows=parseCSV(e.target.result);
+  let added=0, skipped=0;
+  rows.forEach(r=>{
+   const date=r["date(YYYY-MM-DD)"] || r["date"];
+   const startT=r["startTime(HH:MM)"] || r["startTime"];
+   const endT=r["endTime(HH:MM)"] || r["endTime"];
+   if(!date || !startT || !endT){skipped++; return;}
+   const start=new Date(`${date}T${startT}`).getTime();
+   const end=new Date(`${date}T${endT}`).getTime();
+   if(isNaN(start) || isNaN(end) || end<=start){skipped++; return;}
+   const linkedName=(r["linkedTaskName(optional)"] || r["linkedTaskName"] || "").trim();
+   const linkedTask = linkedName ? tasks.find(t=>t.taskName.toLowerCase()===linkedName.toLowerCase()) : null;
+   timeEntries.push({
+    id:"e"+Date.now()+Math.random().toString(36).slice(2,6),
+    taskId: linkedTask ? linkedTask.id : null,
+    category: r["category"] || "Other",
+    description: r["description"] || "",
+    date, start, end, duration:end-start, source:"manual"
+   });
+   added++;
+  });
+  saveTimeEntries(); renderLog(); renderTasks();
+  alert(`Imported ${added} time entr${added===1?"y":"ies"}.${skipped? " Skipped "+skipped+" invalid row(s).":""}`);
+  event.target.value="";
+ };
+ reader.readAsText(file);
+}
+
 /* ---------------- init ---------------- */
+migrate();
+["taskCategory","liveCategory","manCategory"].forEach(id=>{
+ document.getElementById(id).innerHTML = categoryOptionsHtml();
+});
+document.getElementById("categoryLegend").innerHTML = CATEGORIES.map(c=>
+ `<span class="cat-tag" style="background:${c.color}">${c.emoji} ${c.name}</span>`
+).join("");
 document.getElementById("manDate").value = toDateStr(Date.now());
+if(settings.darkMode) document.body.classList.add("dark");
+updateDarkToggleLabel();
+refreshTaskLinkDropdowns();
 renderTasks();
 renderLog();
 renderTimerView();
